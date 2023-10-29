@@ -7,35 +7,193 @@ import (
 	"geektrust/types"
 	"log"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
 )
 
-func executeCommands(commandText []string, courses *[]types.Course) {
-	currentCommand, parameters := commandText[0], commandText[1:]
+var courses []types.Course
+var courseRegistrationMap map[string]types.CourseStatusData
+var courseRegIdMap map[string]string
 
+// var courseRegMap map[string][]types.CourseRegistrationData
+func sortByRegistrationId(registrations []types.CourseRegistrationData) {
+	sort.Slice(registrations, func(i, j int) bool {
+		return registrations[i].CourseRegId < registrations[j].CourseRegId
+	})
+}
+
+func removeRegistrationById(registrations []types.CourseRegistrationData, courseRegId string) []types.CourseRegistrationData {
+	var indexToRemove int
+	for i, reg := range registrations {
+		if reg.CourseRegId == courseRegId {
+			indexToRemove = i
+			break
+		}
+	}
+
+	// Remove the element by slicing the slice
+	return append(registrations[:indexToRemove], registrations[indexToRemove+1:]...)
+}
+
+func inputCommandValidation(currentCommand string, parameters []string) bool {
+	var paramsLength int
+	switch currentCommand {
+	case constants.ADD_COURSE_OFFERING:
+		paramsLength = len(parameters)
+		if paramsLength < 5 {
+			return false
+		}
+
+	case constants.ALLOT_COURSE:
+		paramsLength = len(parameters)
+		if paramsLength < 1 {
+			return false
+		}
+
+	case constants.REGISTER:
+		paramsLength = len(parameters)
+		if paramsLength < 2 {
+			return false
+		}
+
+	case constants.CANCEL:
+		paramsLength = len(parameters)
+		if paramsLength < 1 {
+			return false
+		}
+	}
+	return true
+
+}
+
+func executeCommands(
+	commandText []string,
+	// courses *[]types.Course,
+	// courseEnrollmentMap map[string]types.CourseStatusMetaData,
+) {
+	currentCommand, parameters := commandText[0], commandText[1:]
+	isValidCommand := inputCommandValidation(currentCommand, parameters)
+
+	if !isValidCommand {
+		fmt.Println(constants.INPUT_DATA_ERROR)
+		return
+	}
 	switch currentCommand {
 	case constants.ADD_COURSE_OFFERING:
 
-		name, instructor, minCapacity, maxCapacity := parameters[0], parameters[1], parameters[2], parameters[3]
+		name, instructor, minCapacity, maxCapacity := parameters[0], parameters[1], parameters[3], parameters[4]
 		minCap, _ := strconv.Atoi(minCapacity)
 		maxCap, _ := strconv.Atoi(maxCapacity)
-		courseId := constants.OFFERING + "-" + name + "-" + instructor
+
+		courseOfferingId := constants.OFFERING + "-" + name + "-" + instructor
+
 		course := types.Course{
-			Id:         courseId,
+			Id:         courseOfferingId,
 			Name:       name,
 			Instructor: instructor,
 			Date:       time.Now(),
 			MinimumCap: int32(minCap),
 			MaximumCap: int32(maxCap),
 		}
+		// key := name + "-" + instructor
 
-		*courses = append(*courses, course)
+		if courseRegistrationMap == nil {
+			courseRegistrationMap = make(map[string]types.CourseStatusData)
+		}
+
+		if _, ok := courseRegistrationMap[courseOfferingId]; !ok {
+			courseRegistrationMap[courseOfferingId] = types.CourseStatusData{
+				Course:              course,
+				RegisteredEmployees: []types.CourseRegistrationData{},
+				IsAlloted:           false,
+				IsCanceled:          false,
+			}
+
+			courses = append(courses, course)
+
+		}
+
+		// else {
+		// 	courseEnrollmentMap[key] = types.CourseStatusMetaData{}
+		// }
+
 	case constants.REGISTER:
-		// email, courseName := parameters[0], parameters[1]
+		email, courseOfferingId := parameters[0], parameters[1]
+		employeeName := strings.Split(email, "@")[0]
+		courseNameIns := strings.Split(courseOfferingId, "-")
+		courseName, instructor := courseNameIns[1], courseNameIns[2]
+		// key := courseName + "-" + instructor
+
+		if course, ok := courseRegistrationMap[courseOfferingId]; ok {
+			if ok {
+				registeredEmployees := course.RegisteredEmployees
+				maxCap := course.Course.MaximumCap
+
+				if len(registeredEmployees) < int(maxCap) {
+					registrationId := constants.REG_COURSE + "-" + employeeName + "-" + courseName
+					// enrolledEmployees = append(enrolledEmployees, employeeName)
+					// value.RegisteredEmployees = enrolledEmployees
+					// courseEnrollmentMap[key] = value
+
+					employeeRegData := types.CourseRegistrationData{
+						CourseRegId: registrationId,
+						EmailId:     email,
+						CourseOffId: courseOfferingId,
+						CourseName:  courseName,
+						Instructor:  instructor,
+						Date:        time.Now(),
+						Status:      constants.ACCEPTED,
+					}
+
+					if courseRegIdMap == nil {
+						courseRegIdMap = make(map[string]string)
+					}
+
+					// courseRegValue := courseRegMap[courseOfferingId]
+					courseRegValue := courseRegistrationMap[courseOfferingId].RegisteredEmployees
+					courseRegValue = append(courseRegValue, employeeRegData)
+					course.RegisteredEmployees = courseRegValue
+					courseRegistrationMap[courseOfferingId] = course
+
+					courseRegIdMap[registrationId] = courseOfferingId
+					fmt.Println(registrationId, " ", constants.ACCEPTED)
+
+				} else {
+					fmt.Println(" ", constants.COURSE_FULL_ERROR)
+				}
+			}
+
+		}
+
+	case constants.ALLOT_COURSE:
+		courseOfferingId := parameters[0]
+		courseData := courseRegistrationMap[courseOfferingId]
+		courseData.IsAlloted = true
+		registrations := courseData.RegisteredEmployees
+		sortByRegistrationId(registrations)
+		fmt.Printf("%+v\n", registrations)
+		courseRegistrationMap[courseOfferingId] = courseData
+		// fmt.Println("REG", courseData.IsAlloted)
+
+	case constants.CANCEL:
+		courseRegId := parameters[0]
+		courseOfferingId := courseRegIdMap[courseRegId]
+
+		courseData := courseRegistrationMap[courseOfferingId]
+		if courseData.IsAlloted {
+			fmt.Println(courseRegId, " ", constants.CANCEL_REJECTED)
+		} else {
+			updatedEmployees := removeRegistrationById(courseData.RegisteredEmployees, courseRegId)
+			courseData.RegisteredEmployees = updatedEmployees
+			courseRegistrationMap[courseOfferingId] = courseData
+
+			fmt.Println(courseRegId, " ", constants.CANCEL_ACCEPTED)
+		}
 
 	}
+
 }
 
 func main() {
@@ -59,17 +217,16 @@ func main() {
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
 
-	courses := []types.Course{}
+	// employeeCourseMap := make(map[string]int32)
 
 	for scanner.Scan() {
 
 		args := scanner.Text()
 		argList := strings.Fields(args)
 
-		executeCommands(argList, &courses)
+		executeCommands(argList)
 
 	}
-	fmt.Println("total courses", len(courses))
 
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
