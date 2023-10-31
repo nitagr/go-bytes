@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"geektrust/constants"
+	"geektrust/methods"
 	"geektrust/types"
 	"geektrust/util"
 	"log"
@@ -37,47 +38,16 @@ func removeRegistrationById(registrations []types.CourseRegistrationData, course
 	return append(registrations[:indexToRemove], registrations[indexToRemove+1:]...)
 }
 
-func inputCommandValidation(currentCommand string, parameters []string) bool {
-	var paramsLength int
-	switch currentCommand {
-	case constants.ADD_COURSE_OFFERING:
-		paramsLength = len(parameters)
-		if paramsLength < 5 {
-			return false
-		}
-
-	case constants.ALLOT_COURSE:
-		paramsLength = len(parameters)
-		if paramsLength < 1 {
-			return false
-		}
-
-	case constants.REGISTER:
-		paramsLength = len(parameters)
-		if paramsLength < 2 {
-			return false
-		}
-
-	case constants.CANCEL:
-		paramsLength = len(parameters)
-		if paramsLength < 1 {
-			return false
-		}
-	}
-	return true
-
-}
-
 func executeCommands(
 	commandText []string,
 	// courses *[]types.Course,
 	// courseEnrollmentMap map[string]types.CourseStatusMetaData,
 ) {
 	currentCommand, parameters := commandText[0], commandText[1:]
-	isValidCommand := inputCommandValidation(currentCommand, parameters)
+	isValidCommand := methods.InputCommandValidation(currentCommand, parameters)
 
-	if !isValidCommand {
-		fmt.Println(constants.INPUT_DATA_ERROR)
+	if isValidCommand != nil {
+		fmt.Println(isValidCommand)
 		return
 	}
 	switch currentCommand {
