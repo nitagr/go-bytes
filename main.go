@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"geektrust/constants"
 	"geektrust/types"
+	"geektrust/util"
 	"log"
 	"os"
 	"sort"
@@ -17,7 +18,6 @@ var courses []types.Course
 var courseRegistrationMap map[string]types.CourseStatusData
 var courseRegIdMap map[string]string
 
-// var courseRegMap map[string][]types.CourseRegistrationData
 func sortByRegistrationId(registrations []types.CourseRegistrationData) {
 	sort.Slice(registrations, func(i, j int) bool {
 		return registrations[i].CourseRegId < registrations[j].CourseRegId
@@ -83,21 +83,21 @@ func executeCommands(
 	switch currentCommand {
 	case constants.ADD_COURSE_OFFERING:
 
-		name, instructor, minCapacity, maxCapacity := parameters[0], parameters[1], parameters[3], parameters[4]
+		name, instructor, courseDate, minCapacity, maxCapacity := parameters[0], parameters[1], parameters[3], parameters[3], parameters[4]
 		minCap, _ := strconv.Atoi(minCapacity)
 		maxCap, _ := strconv.Atoi(maxCapacity)
 
 		courseOfferingId := constants.OFFERING + "-" + name + "-" + instructor
+		formattedDate := util.DateFormat(courseDate)
 
 		course := types.Course{
 			Id:         courseOfferingId,
 			Name:       name,
 			Instructor: instructor,
-			Date:       time.Now(),
+			Date:       formattedDate,
 			MinimumCap: int32(minCap),
 			MaximumCap: int32(maxCap),
 		}
-		// key := name + "-" + instructor
 
 		if courseRegistrationMap == nil {
 			courseRegistrationMap = make(map[string]types.CourseStatusData)
@@ -115,16 +115,11 @@ func executeCommands(
 
 		}
 
-		// else {
-		// 	courseEnrollmentMap[key] = types.CourseStatusMetaData{}
-		// }
-
 	case constants.REGISTER:
 		email, courseOfferingId := parameters[0], parameters[1]
 		employeeName := strings.Split(email, "@")[0]
 		courseNameIns := strings.Split(courseOfferingId, "-")
 		courseName, instructor := courseNameIns[1], courseNameIns[2]
-		// key := courseName + "-" + instructor
 
 		if course, ok := courseRegistrationMap[courseOfferingId]; ok {
 			if ok {
@@ -133,10 +128,6 @@ func executeCommands(
 
 				if len(registeredEmployees) < int(maxCap) {
 					registrationId := constants.REG_COURSE + "-" + employeeName + "-" + courseName
-					// enrolledEmployees = append(enrolledEmployees, employeeName)
-					// value.RegisteredEmployees = enrolledEmployees
-					// courseEnrollmentMap[key] = value
-
 					employeeRegData := types.CourseRegistrationData{
 						CourseRegId: registrationId,
 						EmailId:     email,
@@ -151,7 +142,6 @@ func executeCommands(
 						courseRegIdMap = make(map[string]string)
 					}
 
-					// courseRegValue := courseRegMap[courseOfferingId]
 					courseRegValue := courseRegistrationMap[courseOfferingId].RegisteredEmployees
 					courseRegValue = append(courseRegValue, employeeRegData)
 					course.RegisteredEmployees = courseRegValue
@@ -170,12 +160,18 @@ func executeCommands(
 	case constants.ALLOT_COURSE:
 		courseOfferingId := parameters[0]
 		courseData := courseRegistrationMap[courseOfferingId]
-		courseData.IsAlloted = true
+
 		registrations := courseData.RegisteredEmployees
+		if len(registrations) < int(courseData.Course.MinimumCap) {
+			fmt.Println(constants.COURSE_CANCELED)
+			courseData.IsCanceled = true
+			courseRegistrationMap[courseOfferingId] = courseData
+			return
+		}
 		sortByRegistrationId(registrations)
+		courseData.IsAlloted = true
 		fmt.Printf("%+v\n", registrations)
 		courseRegistrationMap[courseOfferingId] = courseData
-		// fmt.Println("REG", courseData.IsAlloted)
 
 	case constants.CANCEL:
 		courseRegId := parameters[0]
@@ -217,15 +213,10 @@ func main() {
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
 
-	// employeeCourseMap := make(map[string]int32)
-
 	for scanner.Scan() {
-
 		args := scanner.Text()
 		argList := strings.Fields(args)
-
 		executeCommands(argList)
-
 	}
 
 	if err := scanner.Err(); err != nil {
