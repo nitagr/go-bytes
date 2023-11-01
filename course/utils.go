@@ -1,18 +1,12 @@
 package course
 
 import (
+	"fmt"
 	"geektrust/constants"
 	errorTypes "geektrust/errortypes"
 	"geektrust/types"
 	"sort"
-	"time"
 )
-
-func formatDate(date string) time.Time {
-	layout := constants.DATE_LAYOUT
-	result, _ := time.Parse(layout, date)
-	return result
-}
 
 func sortByRegistrationId(registrations []types.CourseEmployeeRegistrationData) {
 	sort.Slice(registrations, func(i, j int) bool {
@@ -35,27 +29,33 @@ func removeRegistrationById(
 	return append(registrations[:indexToRemove], registrations[indexToRemove+1:]...)
 }
 
+func listRegisteredEmployees(list []types.CourseEmployeeRegistrationData) {
+	for _, p := range list {
+		fmt.Printf("%s %s %s %s %s %s %s\n", p.CourseRegId, p.EmailId, p.CourseOffId, p.CourseName, p.Instructor, p.Date, p.Status)
+	}
+}
+
 func inputCommandValidation(currentCommand string, parameters []string) error {
 	paramsLength := len(parameters)
 	switch currentCommand {
 	case constants.ADD_COURSE_OFFERING:
 		if paramsLength < 5 {
-			return errorTypes.ErrInvalidCommandError
+			return errorTypes.ErrInputDataError
 		}
 
 	case constants.ALLOT_COURSE:
 		if paramsLength < 1 {
-			return errorTypes.ErrCourseFullError
+			return errorTypes.ErrInputDataError
 		}
 
 	case constants.REGISTER:
 		if paramsLength < 2 {
-			return errorTypes.ErrCourseFullError
+			return errorTypes.ErrInputDataError
 		}
 
 	case constants.CANCEL:
 		if paramsLength < 1 {
-			return errorTypes.ErrCourseFullError
+			return errorTypes.ErrInputDataError
 		}
 
 	}

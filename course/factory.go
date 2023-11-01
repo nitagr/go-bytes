@@ -1,7 +1,9 @@
 package course
 
 import (
+	"fmt"
 	"geektrust/constants"
+	"geektrust/errortypes"
 	"geektrust/types"
 )
 
@@ -11,6 +13,16 @@ func ExecuteCommandsFactory(
 	courseEmployeeRegMap map[string]types.CourseData,
 	courseRegIdMap map[string]string,
 ) {
+	defer (func() {
+		r := recover()
+		if r != nil {
+			fmt.Println(r)
+		}
+	})()
+	if len(commandText) <= 0 {
+		return
+	}
+
 	currentCommand, parameters := commandText[0], commandText[1:]
 	errValidCommand := inputCommandValidation(currentCommand, parameters)
 
@@ -31,8 +43,8 @@ func ExecuteCommandsFactory(
 	case constants.CANCEL:
 		cancelRegistration(parameters, courses, courseEmployeeRegMap, courseRegIdMap)
 
-		// default:
-		// 	panic(errortypes.ErrCommandNotError)
+	default:
+		panic(errortypes.ErrCommandNotFoundError)
 	}
 
 }

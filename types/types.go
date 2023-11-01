@@ -1,12 +1,10 @@
 package types
 
-import "time"
-
 type Course struct {
 	Id         string
 	Name       string
 	Instructor string
-	Date       time.Time
+	Date       string
 	MinimumCap int32
 	MaximumCap int32
 }
@@ -17,7 +15,7 @@ type CourseEmployeeRegistrationData struct {
 	CourseOffId string
 	CourseName  string
 	Instructor  string
-	Date        time.Time
+	Date        string
 	Status      string
 }
 

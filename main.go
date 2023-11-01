@@ -11,6 +11,11 @@ import (
 )
 
 func main() {
+
+	defer (func() {
+		recover()
+	})()
+
 	cliArgs := os.Args[1:]
 
 	if len(cliArgs) == 0 {

@@ -3,7 +3,7 @@ package constants
 const (
 	ADD_COURSE_OFFERING = "ADD-COURSE-OFFERING"
 	REGISTER            = "REGISTER"
-	ALLOT_COURSE        = "ALLOT-COURSE"
+	ALLOT_COURSE        = "ALLOT"
 	CANCEL              = "CANCEL"
 	COURSE_CANCELED     = "COURSE_CANCELED"
 	COURSE_FULL_ERROR   = "COURSE_FULL_ERROR"
@@ -13,8 +13,5 @@ const (
 	OFFERING            = "OFFERING"
 	REG_COURSE          = "REG-COURSE"
 	ACCEPTED            = "ACCEPTED"
-)
-
-const (
-	DATE_LAYOUT = "01022006"
+	CONFIRMED           = "CONFIRMED"
 )
