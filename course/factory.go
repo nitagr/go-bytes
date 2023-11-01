@@ -7,6 +7,7 @@ import (
 	"geektrust/types"
 )
 
+// validates and executes the command by its types using (command and parameters)
 func ExecuteCommandsFactory(
 	commandText []string,
 	courses *[]types.Course,
@@ -15,6 +16,7 @@ func ExecuteCommandsFactory(
 ) {
 	defer (func() {
 		r := recover()
+		// recover: for invalid command and arguments
 		if r != nil {
 			fmt.Println(r)
 		}
@@ -27,6 +29,7 @@ func ExecuteCommandsFactory(
 	errValidCommand := inputCommandValidation(currentCommand, parameters)
 
 	if errValidCommand != nil {
+		// panic in case of invalid command
 		panic(errValidCommand)
 	}
 

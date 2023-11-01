@@ -9,6 +9,9 @@ import (
 	"strings"
 )
 
+/*
+adds course using parameters: (name, instructor, courseDate, minCapacity, maxCapacity) to the course list
+*/
 func addCourseOffering(
 	parameters []string,
 	courses *[]types.Course,
@@ -46,6 +49,10 @@ func addCourseOffering(
 
 }
 
+/*
+register employess under course using parameters: (email, courseOfferingId) to the course list
+if course max capactiy is reached then COURSE_FULL_ERROR is thrown otherwise ACCEPTED
+*/
 func registerCourse(
 	parameters []string,
 	courses *[]types.Course,
@@ -91,6 +98,10 @@ func registerCourse(
 	}
 }
 
+/*
+allot the registered emplyees under course using parameters: (courseOfferingId) to the course list
+if course min capactiy is not reached then COURSE_CANCELED is thrown otherwise CONFIRMED
+*/
 func allotCourse(
 	parameters []string,
 	courses *[]types.Course,
@@ -120,6 +131,10 @@ func allotCourse(
 
 }
 
+/*
+it takes parameters(courseRegId)
+cancels the course registration before course date other gets rejected
+*/
 func cancelRegistration(
 	parameters []string,
 	courses *[]types.Course,

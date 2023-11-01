@@ -8,12 +8,14 @@ import (
 	"sort"
 )
 
+// sorting in ascending order of registration ids
 func sortByRegistrationId(registrations []types.CourseEmployeeRegistrationData) {
 	sort.Slice(registrations, func(i, j int) bool {
 		return registrations[i].CourseRegId < registrations[j].CourseRegId
 	})
 }
 
+// remove registration by course registration id
 func removeRegistrationById(
 	registrations []types.CourseEmployeeRegistrationData,
 	courseRegId string,
@@ -35,6 +37,7 @@ func listRegisteredEmployees(list []types.CourseEmployeeRegistrationData) {
 	}
 }
 
+// input command validation factory
 func inputCommandValidation(currentCommand string, parameters []string) error {
 	paramsLength := len(parameters)
 	switch currentCommand {
