@@ -11,7 +11,7 @@ type Course struct {
 	MaximumCap int32
 }
 
-type CourseRegistrationData struct {
+type CourseEmployeeRegistrationData struct {
 	CourseRegId string
 	EmailId     string
 	CourseOffId string
@@ -21,9 +21,9 @@ type CourseRegistrationData struct {
 	Status      string
 }
 
-type CourseStatusData struct {
+type CourseData struct {
 	Course
-	RegisteredEmployees []CourseRegistrationData
+	RegisteredEmployees []CourseEmployeeRegistrationData
 	IsAlloted           bool
 	IsCanceled          bool
 }
