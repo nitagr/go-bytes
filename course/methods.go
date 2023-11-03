@@ -41,6 +41,7 @@ func AddCourseOffering(
 		}
 
 		*courses = append(*courses, course)
+		fmt.Println(courseOfferingId)
 		return courseOfferingId, nil
 
 	} else {
