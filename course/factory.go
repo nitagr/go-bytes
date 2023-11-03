@@ -35,16 +35,16 @@ func ExecuteCommandsFactory(
 
 	switch currentCommand {
 	case constants.ADD_COURSE_OFFERING:
-		addCourseOffering(parameters, courses, courseEmployeeRegMap, courseRegIdMap)
+		AddCourseOffering(parameters, courses, courseEmployeeRegMap, courseRegIdMap)
 
 	case constants.REGISTER:
-		registerCourse(parameters, courses, courseEmployeeRegMap, courseRegIdMap)
+		RegisterCourse(parameters, courses, courseEmployeeRegMap, courseRegIdMap)
 
 	case constants.ALLOT_COURSE:
-		allotCourse(parameters, courses, courseEmployeeRegMap, courseRegIdMap)
+		AllotCourse(parameters, courses, courseEmployeeRegMap, courseRegIdMap)
 
 	case constants.CANCEL:
-		cancelRegistration(parameters, courses, courseEmployeeRegMap, courseRegIdMap)
+		CancelRegistration(parameters, courses, courseEmployeeRegMap, courseRegIdMap)
 
 	default:
 		panic(errortypes.ErrCommandNotFoundError)

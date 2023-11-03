@@ -12,12 +12,12 @@ import (
 /*
 adds course using parameters: (name, instructor, courseDate, minCapacity, maxCapacity) to the course list
 */
-func addCourseOffering(
+func AddCourseOffering(
 	parameters []string,
 	courses *[]types.Course,
 	courseEmployeeRegMap map[string]types.CourseData,
 	courseRegIdMap map[string]string,
-) {
+) (string, error) {
 	name, instructor, courseDate, minCapacity, maxCapacity := parameters[0], parameters[1], parameters[2], parameters[3], parameters[4]
 	minCap, _ := strconv.Atoi(minCapacity)
 	maxCap, _ := strconv.Atoi(maxCapacity)
@@ -41,10 +41,10 @@ func addCourseOffering(
 		}
 
 		*courses = append(*courses, course)
-		fmt.Println(courseOfferingId)
+		return courseOfferingId, nil
 
 	} else {
-		panic(errortypes.ErrCourseAlreadyExistsError)
+		return "", errortypes.ErrCourseAlreadyExistsError
 	}
 
 }
@@ -53,12 +53,12 @@ func addCourseOffering(
 register employess under course using parameters: (email, courseOfferingId) to the course list
 if course max capactiy is reached then COURSE_FULL_ERROR is thrown otherwise ACCEPTED
 */
-func registerCourse(
+func RegisterCourse(
 	parameters []string,
 	courses *[]types.Course,
 	courseEmployeeRegMap map[string]types.CourseData,
 	courseRegIdMap map[string]string,
-) {
+) (string, string, error) {
 	email, courseOfferingId := parameters[0], parameters[1]
 	employeeName := strings.Split(email, "@")[0]
 	courseNameIns := strings.Split(courseOfferingId, "-")
@@ -88,13 +88,15 @@ func registerCourse(
 
 			courseRegIdMap[registrationId] = courseOfferingId
 			fmt.Println(registrationId, constants.ACCEPTED)
+			return registrationId, constants.ACCEPTED, nil
 
 		} else {
 			fmt.Println(constants.COURSE_FULL_ERROR)
+			return "", constants.COURSE_FULL_ERROR, nil
 		}
 
 	} else {
-		panic(errortypes.ErrCourseNotFoundError)
+		return "", "", errortypes.ErrCourseNotFoundError
 	}
 }
 
@@ -102,7 +104,7 @@ func registerCourse(
 allot the registered emplyees under course using parameters: (courseOfferingId) to the course list
 if course min capactiy is not reached then COURSE_CANCELED is thrown otherwise CONFIRMED
 */
-func allotCourse(
+func AllotCourse(
 	parameters []string,
 	courses *[]types.Course,
 	courseEmployeeRegMap map[string]types.CourseData,
@@ -135,7 +137,7 @@ func allotCourse(
 it takes parameters(courseRegId)
 cancels the course registration before course date other gets rejected
 */
-func cancelRegistration(
+func CancelRegistration(
 	parameters []string,
 	courses *[]types.Course,
 	courseEmployeeRegMap map[string]types.CourseData,
