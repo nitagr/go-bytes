@@ -37,6 +37,15 @@ func listRegisteredEmployees(list []types.CourseEmployeeRegistrationData) {
 	}
 }
 
+func makeRegistrationStatusCancel(registrations []types.CourseEmployeeRegistrationData) []types.CourseEmployeeRegistrationData {
+	var cancelledReg []types.CourseEmployeeRegistrationData
+	for _, reg := range registrations {
+		reg.Status = constants.COURSE_CANCELED
+		cancelledReg = append(cancelledReg, reg)
+	}
+	return cancelledReg
+}
+
 // input command validation factory
 func inputCommandValidation(currentCommand string, parameters []string) error {
 	paramsLength := len(parameters)

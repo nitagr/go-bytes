@@ -121,12 +121,12 @@ func AllotCourse(
 	}
 
 	registrations := courseData.RegisteredEmployees
-	// if len(registrations) < int(courseData.Course.MinimumCap) {
-	// 	fmt.Println(constants.COURSE_CANCELED)
-	// 	courseData.IsCanceled = true
-	// 	courseEmployeeRegMap[courseOfferingId] = courseData
-	// 	return
-	// }
+	if len(registrations) < int(courseData.Course.MinimumCap) {
+		courseData.IsCanceled = true
+		registrations = makeRegistrationStatusCancel(registrations)
+		courseData.RegisteredEmployees = registrations
+	}
+
 	sortByRegistrationId(registrations)
 	courseData.IsAlloted = true
 	courseEmployeeRegMap[courseOfferingId] = courseData
