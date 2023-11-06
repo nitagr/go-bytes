@@ -17,16 +17,16 @@ func main() {
 	})()
 
 	// reads the arguments passed from command line for execution
-	cliArgs := os.Args[1:]
+	// cliArgs := os.Args[1:]
 
-	if len(cliArgs) == 0 {
-		fmt.Println("Please provide the input file path")
-		return
-	}
+	// if len(cliArgs) == 0 {
+	// 	fmt.Println("Please provide the input file path")
+	// 	return
+	// }
 
 	// opens the file provides as first argument of command in shell
-	filePath := cliArgs[0]
-	file, err := os.Open(filePath)
+	// filePath := cliArgs[0]
+	file, err := os.Open("sample_input/input1.txt")
 
 	if err != nil {
 		fmt.Println("Error opening the input file")
