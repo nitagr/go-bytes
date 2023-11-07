@@ -1,4 +1,4 @@
-FROM golang:1.21.3-alpine
+FROM golang:1.21.3-alpine as builder
 
 RUN mkdir /app
 
@@ -14,6 +14,10 @@ COPY *.go ./
 
 RUN go build -o /godocker
 
-EXPOSE 8080
+FROM alpine:latest
+
+COPY --from=builder /godocker /godocker
+
+EXPOSE 5000
 
 CMD ["/godocker"]
