@@ -1,2 +1,4 @@
 geektrust*
 geektrust.*
+.env
+go.sum

@@ -1,6 +1,12 @@
 package main
 
-import "geektrust/mappings"
+import (
+	"fmt"
+	initial "geektrust/intial"
+	"geektrust/mappings"
+	"log"
+	"time"
+)
 
 // "bufio"
 
@@ -11,6 +17,29 @@ import "geektrust/mappings"
 // "strings"
 
 func main() {
+
+	defer func() {
+		r := recover()
+		if r != nil {
+			fmt.Print("panic recovered", r)
+		}
+	}()
+	initial.LoadEnv()
+
+	redisClient := initial.NewRedisClient()
+	if _, err := redisClient.Ping().Result(); err != nil {
+		log.Fatal(err)
+		time.Sleep(time.Second * 2)
+		_, err := redisClient.Ping().Result()
+		if err != nil {
+			panic(err)
+		}
+
+	}
+
+	data, _ := redisClient.Get("goredis").Result()
+
+	fmt.Println(data)
 
 	mappings.CreateUrlMappings()
 	mappings.Router.Run(":5000")
