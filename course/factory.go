@@ -13,6 +13,7 @@ func ExecuteCommandsFactory(
 	courses *[]types.Course,
 	courseEmployeeRegMap map[string]types.CourseData,
 	courseRegIdMap map[string]string,
+	ch chan string,
 ) {
 	defer (func() {
 		r := recover()
@@ -36,6 +37,8 @@ func ExecuteCommandsFactory(
 	switch currentCommand {
 	case constants.ADD_COURSE_OFFERING:
 		AddCourseOffering(parameters, courses, courseEmployeeRegMap, courseRegIdMap)
+		text := parameters[0] + " : Course Added"
+		ch <- text
 
 	case constants.REGISTER:
 		RegisterCourse(parameters, courses, courseEmployeeRegMap, courseRegIdMap)
